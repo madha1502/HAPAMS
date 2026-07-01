@@ -5,7 +5,8 @@ const routes = require("./routes/index.js");
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-const clientOrigin = process.env.CLIENT_URL || "http://localhost:5173";
+// Strip trailing slash to prevent CORS mismatch (e.g. "https://hapams.vercel.app/" vs "https://hapams.vercel.app")
+const clientOrigin = (process.env.CLIENT_URL || "http://localhost:5173").replace(/\/$/, "");
 app.use(cors({ origin: clientOrigin }));
 app.use(express.json({ limit: "10mb" }));
 
