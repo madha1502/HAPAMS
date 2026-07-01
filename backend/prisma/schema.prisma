@@ -1,0 +1,97 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Users {
+  id           String        @id @default(uuid())
+  name         String
+  email        String        @unique
+  passwordHash String
+  role         String
+  status       String
+  lastLogin    String?
+  activityLogs ActivityLog[]
+}
+
+model Floors {
+  id          String     @id @default(uuid())
+  name        String     @unique
+  capacity    Int
+  hostel      String
+  description String?
+  status      String
+  rooms       Rooms[]
+  students    Students[]
+}
+
+model Rooms {
+  id         String @id // e.g. room number like "101", "102"
+  roomNumber String @unique
+  floorId    String
+  floor      Floors @relation(fields: [floorId], references: [id], onDelete: Cascade)
+  capacity   Int
+  status     String
+}
+
+model Students {
+  id          String        @id @default(uuid())
+  regNo       String        @unique
+  name        String
+  dept        String
+  year        Int
+  section     String?
+  hostel      String
+  room        String?       // Room ID/number string e.g. "101"
+  floorId     String
+  floor       Floors        @relation(fields: [floorId], references: [id], onDelete: Cascade)
+  status      String
+  examResults ExamResults[]
+}
+
+model Reports {
+  id           String        @id @default(uuid())
+  title        String
+  academicYear String
+  semester     String
+  generatedBy  String
+  summaryJson  Json
+  date         String?
+  floors       Int?
+  college      String?
+  hostel       String?
+  examResults  ExamResults[]
+}
+
+model ExamResults {
+  id        String   @id @default(uuid())
+  studentId String
+  student   Students @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  reportId  String
+  report    Reports  @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  subject   String
+  marks     Int
+  maxMarks  Int
+  passed    Boolean
+}
+
+model ActivityLog {
+  id        String   @id @default(uuid())
+  userId    String?
+  user      Users?   @relation(fields: [userId], references: [id], onDelete: SetNull)
+  userEmail String
+  action    String
+  createdAt DateTime @default(now())
+}
+
+model Settings {
+  id       String @id @default("default")
+  college  String
+  hostel   String
+  year     String
+  semester String
+}
