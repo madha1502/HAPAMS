@@ -2,6 +2,7 @@ const { Router } = require("express");
 const floors = require("../controllers/floors.js");
 const students = require("../controllers/students.js");
 const rooms = require("../controllers/rooms.js");
+const attendance = require("../controllers/attendance.js");
 const misc = require("../controllers/misc.js");
 
 const r = Router();
@@ -32,6 +33,12 @@ r.get   ("/rooms",     rooms.listRooms);
 r.post  ("/rooms",     rooms.createRoom);
 r.put   ("/rooms/:id", rooms.updateRoom);
 r.delete("/rooms/:id", rooms.deleteRoom);
+
+// Attendance & Biometrics
+r.get ("/attendance",                 attendance.listAttendance);
+r.get ("/attendance/summary",         attendance.getAttendanceSummary);
+r.post("/attendance/biometric-push",  attendance.biometricPush);
+r.post("/attendance/simulate",        attendance.simulatePunch);
 
 // Users
 r.get   ("/users",     misc.listUsers);

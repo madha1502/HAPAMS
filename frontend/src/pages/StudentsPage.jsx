@@ -5,7 +5,7 @@ import { Badge, Btn, PageHeader, Table, Modal, Input, Select, ErrorBanner, Spinn
 import { icons, Icon } from "../components/ui.jsx";
 
 const HOSTEL_OPTIONS = ["BH-1", "BH-2", "NC-BH1", "NC-BH2", "Men's Hostel", "Ladies Hostel"];
-const BLANK = { regNo: "", name: "", dept: "", year: 1, section: "", hostel: "", floor: 1, room: "", status: "Active" };
+const BLANK = { regNo: "", name: "", dept: "", year: 1, semester: 1, section: "", hostel: "", floor: 1, room: "", status: "Active" };
 
 export default function StudentsPage() {
   const [students,     setStudents]     = useState([]);
@@ -35,7 +35,7 @@ export default function StudentsPage() {
   useEffect(() => { load(); }, []);
 
   function openAdd()      { setForm(BLANK); setModal("add"); setError(""); }
-  function openEdit(s)    { setForm({ ...s, year: String(s.year), floor: String(s.floor) }); setModal("edit"); setError(""); }
+  function openEdit(s)    { setForm({ ...s, year: String(s.year), semester: String(s.semester || 1), floor: String(s.floor) }); setModal("edit"); setError(""); }
 
   async function handleSave() {
     setError("");
@@ -98,14 +98,15 @@ export default function StudentsPage() {
 
         const detectedCols = raw.length > 0 ? Object.keys(raw[0]) : [];
         const MAP = {
-          regNo:   ["register number","reg no","regno","registration number","reg. no.","reg.no","reg no.","register no","register no.","regisiter number","rno","reg.no.","roll no","roll number","roll no."],
-          name:    ["student name","name","full name","student_name","sname","s.name"],
-          dept:    ["department","dept","branch"],
-          year:    ["year","year of study"],
-          section: ["section"],
-          hostel:  ["hostel","hostel name","hostel block","block","block name","bh"],
-          floor:   ["floor","floor number","floor no"],
-          room:    ["room number","room no","room","roomno"],
+          regNo:    ["register number","reg no","regno","registration number","reg. no.","reg.no","reg no.","register no","register no.","regisiter number","rno","reg.no.","roll no","roll number","roll no."],
+          name:     ["student name","name","full name","student_name","sname","s.name"],
+          dept:     ["department","dept","branch"],
+          year:     ["year","year of study"],
+          semester: ["semester","sem","sem no","sem.no.","semester no","sem no."],
+          section:  ["section"],
+          hostel:   ["hostel","hostel name","hostel block","block","block name","bh"],
+          floor:    ["floor","floor number","floor no"],
+          room:     ["room number","room no","room","roomno"],
         };
         function findCol(row, aliases) {
           return Object.keys(row).find(k => aliases.includes(k.toLowerCase().trim())) || null;
@@ -213,11 +214,11 @@ export default function StudentsPage() {
       </div>
 
       <Table
-        headers={["Name", "Reg. No.", "Dept", "Year", "Sec", "Hostel", "Floor", "Room", "Status", "Actions"]}
+        headers={["Name", "Reg. No.", "Dept", "Year", "Sem", "Sec", "Hostel", "Floor", "Room", "Status", "Actions"]}
         rows={filtered.map(s => [
           s.name,
           <span className="font-mono text-blue-400 text-xs">{s.regNo}</span>,
-          s.dept, s.year, s.section,
+          s.dept, s.year, `Sem ${s.semester || 1}`, s.section,
           <span className="text-amber-400 text-xs font-medium">{s.hostel || "—"}</span>,
           `Floor ${s.floor}`, s.room,
           <Badge color={s.status === "Active" ? "green" : "gray"}>{s.status}</Badge>,
@@ -239,6 +240,8 @@ export default function StudentsPage() {
               options={[{ value: "", label: "Select" }, ...["CSE","MECH","ECE","CIVIL","EEE","IT","AIDS","CSBS","CSD"].map(d => ({ value: d, label: d }))]} />
             <Select label="Year" value={form.year} onChange={e => setForm(f => ({ ...f, year: e.target.value }))}
               options={[{ value: "", label: "Select" }, ...[1,2,3,4].map(y => ({ value: y, label: `Year ${y}` }))]} />
+            <Select label="Semester" value={form.semester} onChange={e => setForm(f => ({ ...f, semester: e.target.value }))}
+              options={[{ value: "", label: "Select" }, ...[1,2,3,4,5,6,7,8].map(s => ({ value: s, label: `Semester ${s}` }))]} />
             <Input label="Section" value={form.section} onChange={e => setForm(f => ({ ...f, section: e.target.value }))} />
             <Select label="Hostel" value={form.hostel} onChange={e => setForm(f => ({ ...f, hostel: e.target.value }))}
               options={[

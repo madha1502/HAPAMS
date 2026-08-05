@@ -39,18 +39,35 @@ model Rooms {
 }
 
 model Students {
-  id          String        @id @default(uuid())
-  regNo       String        @unique
-  name        String
-  dept        String
-  year        Int
-  section     String?
-  hostel      String
-  room        String?       // Room ID/number string e.g. "101"
-  floorId     String
-  floor       Floors        @relation(fields: [floorId], references: [id], onDelete: Cascade)
-  status      String
-  examResults ExamResults[]
+  id            String          @id @default(uuid())
+  regNo         String          @unique
+  name          String
+  dept          String
+  year          Int
+  semester      Int             @default(1)
+  section       String?
+  hostel        String
+  room          String?         // Room ID/number string e.g. "101"
+  floorId       String
+  floor         Floors          @relation(fields: [floorId], references: [id], onDelete: Cascade)
+  status        String
+  examResults   ExamResults[]
+  attendance    AttendanceLog[]
+}
+
+model AttendanceLog {
+  id          String    @id @default(uuid())
+  studentId   String?
+  student     Students? @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  regNo       String
+  timestamp   DateTime  @default(now())
+  date        String    // YYYY-MM-DD format
+  time        String    // HH:mm:ss format
+  type        String    // "IN" or "OUT"
+  status      String    // "PRESENT", "LATE", "ABSENT"
+  deviceId    String    // e.g. "BIO-FL1-MAIN"
+  biometricId String?
+  remarks     String?
 }
 
 model Reports {

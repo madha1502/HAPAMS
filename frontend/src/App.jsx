@@ -5,33 +5,36 @@ import DashboardPage from "./pages/DashboardPage.jsx";
 import StudentsPage  from "./pages/StudentsPage.jsx";
 import FloorsPage    from "./pages/FloorsPage.jsx";
 import RoomsPage     from "./pages/RoomsPage.jsx";
+import AttendancePage from "./pages/AttendancePage.jsx";
 import { ReportsPage, UsersPage, SearchPage, ActivityPage, SettingsPage, ResultPage } from "./pages/OtherPages.jsx";
 
 // ─── NAV CONFIG ───────────────────────────────────────────────────────────────
 const NAV = [
-  { id: "dashboard", label: "Dashboard",        icon: "dashboard", roles: ["Super Admin", "Warden"] },
-  { id: "students",  label: "Student Master",    icon: "students",  roles: ["Super Admin"] },
-  { id: "result",    label: "Result Analysis",   icon: "upload",    roles: ["Super Admin", "Warden"] },
-  { id: "reports",   label: "Report History",    icon: "report",    roles: ["Super Admin", "Warden"] },
-  { id: "floors",    label: "Floor Management",  icon: "floor",     roles: ["Super Admin"] },
-  { id: "rooms",     label: "Room Management",   icon: "room",      roles: ["Super Admin"] },
-  { id: "users",     label: "User Management",   icon: "users",     roles: ["Super Admin"] },
-  { id: "search",    label: "Search",            icon: "search",    roles: ["Super Admin", "Warden"] },
-  { id: "activity",  label: "Activity Log",      icon: "log",       roles: ["Super Admin"] },
-  { id: "settings",  label: "Settings",          icon: "settings",  roles: ["Super Admin"] },
+  { id: "dashboard",  label: "Dashboard",              icon: "dashboard", roles: ["Super Admin", "Warden"] },
+  { id: "students",   label: "Student Master",          icon: "students",  roles: ["Super Admin"] },
+  { id: "attendance", label: "Attendance & Biometrics", icon: "check",     roles: ["Super Admin", "Warden"] },
+  { id: "result",     label: "Result Analysis",         icon: "upload",    roles: ["Super Admin", "Warden"] },
+  { id: "reports",    label: "Report History",          icon: "report",    roles: ["Super Admin", "Warden"] },
+  { id: "floors",     label: "Floor Management",        icon: "floor",     roles: ["Super Admin"] },
+  { id: "rooms",      label: "Room Management",         icon: "room",      roles: ["Super Admin"] },
+  { id: "users",      label: "User Management",         icon: "users",     roles: ["Super Admin"] },
+  { id: "search",     label: "Search",                  icon: "search",    roles: ["Super Admin", "Warden"] },
+  { id: "activity",   label: "Activity Log",            icon: "log",       roles: ["Super Admin"] },
+  { id: "settings",   label: "Settings",                icon: "settings",  roles: ["Super Admin"] },
 ];
 
 const PAGES = {
-  dashboard: DashboardPage,
-  students:  StudentsPage,
-  result:    ResultPage,
-  reports:   ReportsPage,
-  floors:    FloorsPage,
-  rooms:     RoomsPage,
-  users:     UsersPage,
-  search:    SearchPage,
-  activity:  ActivityPage,
-  settings:  SettingsPage,
+  dashboard:  DashboardPage,
+  students:   StudentsPage,
+  attendance: AttendancePage,
+  result:     ResultPage,
+  reports:    ReportsPage,
+  floors:     FloorsPage,
+  rooms:      RoomsPage,
+  users:      UsersPage,
+  search:     SearchPage,
+  activity:   ActivityPage,
+  settings:   SettingsPage,
 };
 
 // ─── LOGIN PAGE ───────────────────────────────────────────────────────────────

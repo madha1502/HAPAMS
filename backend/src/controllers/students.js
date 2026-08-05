@@ -3,16 +3,17 @@ const { prisma, addLog, getFloorByNumOrId } = require("../db.js");
 // Helper to map student record to frontend JSON contract
 function mapStudent(s) {
   return {
-    id:      s.id,
-    regNo:   s.regNo,
-    name:    s.name,
-    dept:    s.dept,
-    year:    s.year,
-    section: s.section || "",
-    hostel:  s.hostel,
-    floor:   s.floor ? (parseInt(s.floor.name.replace(/\D/g, ""), 10) || s.floor.id) : 1,
-    room:    s.room || "",
-    status:  s.status,
+    id:       s.id,
+    regNo:    s.regNo,
+    name:     s.name,
+    dept:     s.dept,
+    year:     s.year,
+    semester: s.semester || 1,
+    section:  s.section || "",
+    hostel:   s.hostel,
+    floor:    s.floor ? (parseInt(s.floor.name.replace(/\D/g, ""), 10) || s.floor.id) : 1,
+    room:     s.room || "",
+    status:   s.status,
   };
 }
 
@@ -74,7 +75,7 @@ async function getStudent(req, res) {
 // POST /api/students
 async function createStudent(req, res) {
   try {
-    const { regNo, name, dept, year, section, hostel, floor, room, status } = req.body;
+    const { regNo, name, dept, year, semester, section, hostel, floor, room, status } = req.body;
     if (!regNo || !name || !dept) {
       return res.status(400).json({ error: "regNo, name, and dept are required." });
     }
@@ -97,6 +98,7 @@ async function createStudent(req, res) {
         name,
         dept,
         year:       Number(year) || 1,
+        semester:   Number(semester) || 1,
         section:    section || "",
         hostel:     hostel || "Men's Hostel",
         floorId:    floorRec.id,
@@ -124,11 +126,12 @@ async function updateStudent(req, res) {
     if (!student) return res.status(404).json({ error: "Student not found." });
 
     const updateData = {};
-    const { name, dept, year, section, hostel, floor, room, status } = req.body;
+    const { name, dept, year, semester, section, hostel, floor, room, status } = req.body;
 
     if (name !== undefined) updateData.name = name;
     if (dept !== undefined) updateData.dept = dept;
     if (year !== undefined) updateData.year = Number(year);
+    if (semester !== undefined) updateData.semester = Number(semester);
     if (section !== undefined) updateData.section = section;
     if (hostel !== undefined) updateData.hostel = hostel;
     if (room !== undefined) updateData.room = room;
@@ -228,6 +231,7 @@ async function bulkImport(req, res) {
         name:       String(r.name).trim(),
         dept:       String(r.dept).trim(),
         year:       Number(r.year) || 1,
+        semester:   Number(r.semester || r.sem) || 1,
         section:    String(r.section || "").trim(),
         hostel:     String(r.hostel || "Men's Hostel").trim(),
         floorId:    floorId,

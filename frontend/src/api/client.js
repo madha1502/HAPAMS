@@ -52,6 +52,12 @@ export const api = {
   addReport:    (body)       => req("POST", "/reports", body),
   deleteReport: (id)         => req("DELETE", `/reports/${id}`),
 
+  // Attendance & Biometrics
+  getAttendance:        (params) => req("GET",  "/attendance?" + new URLSearchParams(params || {})),
+  getAttendanceSummary: (params) => req("GET",  "/attendance/summary?" + new URLSearchParams(params || {})),
+  pushBiometricData:    (body)   => req("POST", "/attendance/biometric-push", body),
+  simulateBiometricScan:(body)   => req("POST", "/attendance/simulate", body),
+
   // Logs
   getLogs:      ()           => req("GET",  "/logs"),
 

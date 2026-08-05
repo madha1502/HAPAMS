@@ -6,6 +6,7 @@ async function main() {
 
   // 1. Clear existing data in reverse order of dependencies
   await prisma.activityLog.deleteMany({});
+  await prisma.attendanceLog.deleteMany({});
   await prisma.examResults.deleteMany({});
   await prisma.reports.deleteMany({});
   await prisma.students.deleteMany({});
@@ -111,25 +112,28 @@ async function main() {
 
   // 6. Students
   const studentsData = [
-    { regNo: "22CS001", name: "Arjun Kumar",  dept: "CSE",   year: 2, section: "A", hostel: "Men's Hostel", floorId: "f1", room: "101", status: "Active" },
-    { regNo: "22CS002", name: "Priya Sharma",  dept: "CSE",   year: 2, section: "A", hostel: "Men's Hostel", floorId: "f1", room: "102", status: "Active" },
-    { regNo: "22ME001", name: "Vikram Reddy",  dept: "MECH",  year: 3, section: "B", hostel: "Men's Hostel", floorId: "f2", room: "201", status: "Active" },
-    { regNo: "22ME002", name: "Sanjay Patel",  dept: "MECH",  year: 3, section: "B", hostel: "Men's Hostel", floorId: "f2", room: "202", status: "Active" },
-    { regNo: "22EC001", name: "Anitha Devi",   dept: "ECE",   year: 2, section: "C", hostel: "Men's Hostel", floorId: "f3", room: "301", status: "Active" },
-    { regNo: "22EC002", name: "Ravi Shankar",  dept: "ECE",   year: 2, section: "C", hostel: "Men's Hostel", floorId: "f3", room: "302", status: "Active" },
-    { regNo: "21CS001", name: "Deepika Nair",  dept: "CSE",   year: 3, section: "A", hostel: "Men's Hostel", floorId: "f1", room: "103", status: "Active" },
-    { regNo: "21ME001", name: "Karthik Raj",   dept: "MECH",  year: 4, section: "A", hostel: "Men's Hostel", floorId: "f2", room: "203", status: "Inactive" },
-    { regNo: "22CE001", name: "Suresh Babu",   dept: "CIVIL", year: 2, section: "A", hostel: "Men's Hostel", floorId: "f4", room: "401", status: "Active" },
-    { regNo: "22CE002", name: "Mohan Das",     dept: "CIVIL", year: 2, section: "A", hostel: "Men's Hostel", floorId: "f4", room: "402", status: "Active" }
+    { regNo: "22CS001", name: "Arjun Kumar",  dept: "CSE",   year: 2, semester: 3, section: "A", hostel: "Men's Hostel", floorId: "f1", room: "101", status: "Active" },
+    { regNo: "22CS002", name: "Priya Sharma",  dept: "CSE",   year: 2, semester: 3, section: "A", hostel: "Men's Hostel", floorId: "f1", room: "102", status: "Active" },
+    { regNo: "22ME001", name: "Vikram Reddy",  dept: "MECH",  year: 3, semester: 5, section: "B", hostel: "Men's Hostel", floorId: "f2", room: "201", status: "Active" },
+    { regNo: "22ME002", name: "Sanjay Patel",  dept: "MECH",  year: 3, semester: 5, section: "B", hostel: "Men's Hostel", floorId: "f2", room: "202", status: "Active" },
+    { regNo: "22EC001", name: "Anitha Devi",   dept: "ECE",   year: 2, semester: 4, section: "C", hostel: "Men's Hostel", floorId: "f3", room: "301", status: "Active" },
+    { regNo: "22EC002", name: "Ravi Shankar",  dept: "ECE",   year: 2, semester: 4, section: "C", hostel: "Men's Hostel", floorId: "f3", room: "302", status: "Active" },
+    { regNo: "21CS001", name: "Deepika Nair",  dept: "CSE",   year: 3, semester: 6, section: "A", hostel: "Men's Hostel", floorId: "f1", room: "103", status: "Active" },
+    { regNo: "21ME001", name: "Karthik Raj",   dept: "MECH",  year: 4, semester: 7, section: "A", hostel: "Men's Hostel", floorId: "f2", room: "203", status: "Inactive" },
+    { regNo: "22CE001", name: "Suresh Babu",   dept: "CIVIL", year: 2, semester: 3, section: "A", hostel: "Men's Hostel", floorId: "f4", room: "401", status: "Active" },
+    { regNo: "22CE002", name: "Mohan Das",     dept: "CIVIL", year: 2, semester: 3, section: "A", hostel: "Men's Hostel", floorId: "f4", room: "402", status: "Active" }
   ];
 
+  const createdStudentsMap = {};
+
   for (const s of studentsData) {
-    await prisma.students.create({
+    const created = await prisma.students.create({
       data: {
         regNo: s.regNo,
         name: s.name,
         dept: s.dept,
         year: s.year,
+        semester: s.semester,
         section: s.section,
         hostel: s.hostel,
         floorId: s.floorId,
@@ -137,8 +141,39 @@ async function main() {
         status: s.status
       }
     });
+    createdStudentsMap[s.regNo] = created.id;
   }
   console.log("✅ Seeded Students.");
+
+  // 6.5. Attendance Logs (Biometric Ingestion Data)
+  const todayStr = new Date().toISOString().split("T")[0];
+  const attendanceLogsData = [
+    { regNo: "22CS001", time: "07:30:15", type: "IN", status: "PRESENT", deviceId: "BIO-FL1-01", remarks: "Biometric Thumbprint Scan" },
+    { regNo: "22CS002", time: "07:42:10", type: "IN", status: "PRESENT", deviceId: "BIO-FL1-01", remarks: "RFID Smartcard Tap" },
+    { regNo: "22ME001", time: "07:55:00", type: "IN", status: "PRESENT", deviceId: "BIO-FL2-01", remarks: "Biometric Thumbprint Scan" },
+    { regNo: "22ME002", time: "08:15:30", type: "IN", status: "LATE", deviceId: "BIO-FL2-01", remarks: "Late Entry Recorded" },
+    { regNo: "22EC001", time: "07:20:45", type: "IN", status: "PRESENT", deviceId: "BIO-FL3-01", remarks: "Facial Recognition Scan" },
+    { regNo: "22EC002", time: "07:35:12", type: "IN", status: "PRESENT", deviceId: "BIO-FL3-01", remarks: "RFID Smartcard Tap" },
+    { regNo: "21CS001", time: "07:40:00", type: "IN", status: "PRESENT", deviceId: "BIO-FL1-01", remarks: "Biometric Thumbprint Scan" },
+    { regNo: "22CE001", time: "08:25:00", type: "IN", status: "LATE", deviceId: "BIO-FL4-01", remarks: "Late Entry Recorded" },
+  ];
+
+  for (const log of attendanceLogsData) {
+    await prisma.attendanceLog.create({
+      data: {
+        studentId: createdStudentsMap[log.regNo] || null,
+        regNo: log.regNo,
+        date: todayStr,
+        time: log.time,
+        type: log.type,
+        status: log.status,
+        deviceId: log.deviceId,
+        biometricId: `BIO-${log.regNo}`,
+        remarks: log.remarks
+      }
+    });
+  }
+  console.log("✅ Seeded Attendance Logs.");
 
   // 7. Reports
   const report1 = await prisma.reports.create({
