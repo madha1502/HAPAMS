@@ -151,6 +151,37 @@ export default function StudentsPage() {
     reader.readAsArrayBuffer(file);
   }
 
+  function downloadSampleExcel() {
+    const sampleData = [
+      {
+        "Register Number": "23CS001",
+        "Student Name": "Ramesh Kumar",
+        "Department": "CSE",
+        "Year": 2,
+        "Semester": 3,
+        "Section": "A",
+        "Hostel": "BH-1",
+        "Floor": "1",
+        "Room Number": "101"
+      },
+      {
+        "Register Number": "23ME002",
+        "Student Name": "Karthik Raja",
+        "Department": "MECH",
+        "Year": 2,
+        "Semester": 3,
+        "Section": "B",
+        "Hostel": "BH-2",
+        "Floor": "2",
+        "Room Number": "204"
+      }
+    ];
+    const ws = XLSX.utils.json_to_sheet(sampleData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Students");
+    XLSX.writeFile(wb, "Hostel_Students_Import_Template.xlsx");
+  }
+
   // Derive unique hostels seen in current student list for the filter dropdown
   const hostelList = [...new Set(students.map(s => s.hostel).filter(Boolean))].sort();
 
@@ -309,10 +340,13 @@ export default function StudentsPage() {
                 <p className="text-slate-500 text-xs">Supports .xlsx and .xls files</p>
                 <input ref={fileRef} type="file" accept=".xlsx,.xls" className="hidden" onChange={handleFileChange} />
               </div>
-              <div style={{ background: "#1A2A3E", border: "1px solid #263548" }} className="rounded-lg p-3 text-xs text-slate-400">
+              <div style={{ background: "#1A2A3E", border: "1px solid #263548" }} className="rounded-lg p-3 text-xs text-slate-400 mb-4">
                 <p className="font-medium text-slate-300 mb-1">Required Excel Columns:</p>
-                 <p>Register Number · Student Name · Department · Year · Section · Hostel · Floor · Room Number</p>
-                 <p className="mt-1 text-slate-500">Hostel column accepts: BH-1, BH-2, NC-BH1, NC-BH2, etc.</p>
+                <p>Register Number · Student Name · Department · Year · Section · Hostel · Floor · Room Number</p>
+                <p className="mt-1 text-slate-500">Hostels & Floors are automatically categorized and created if missing.</p>
+              </div>
+              <div className="flex justify-end">
+                <Btn variant="outline" size="sm" icon="download" onClick={downloadSampleExcel}>Download Sample Template (.xlsx)</Btn>
               </div>
             </>
           ) : importDone.parseError ? (
