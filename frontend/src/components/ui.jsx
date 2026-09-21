@@ -75,15 +75,19 @@ export const Btn = ({ variant = "primary", size = "md", icon, children, onClick,
   );
 };
 
-export const PageHeader = ({ title, subtitle, children }) => (
-  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-2">
-    <div>
-      <h1 className="text-2xl font-bold tracking-tight text-[#1D1D1F]">{title}</h1>
-      {subtitle && <p className="text-xs text-[#86868B] font-medium mt-1">{subtitle}</p>}
+export const PageHeader = ({ title, subtitle, sub, children, actions }) => {
+  const subText = subtitle || sub;
+  const actionBtns = children || actions;
+  return (
+    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
+      <div>
+        <h1 className="text-2xl font-bold tracking-tight text-[#1D1D1F]">{title}</h1>
+        {subText && <p className="text-xs text-[#86868B] font-medium mt-1">{subText}</p>}
+      </div>
+      {actionBtns && <div className="flex items-center gap-2">{actionBtns}</div>}
     </div>
-    {children && <div className="flex items-center gap-2">{children}</div>}
-  </div>
-);
+  );
+};
 
 export const Modal = ({ title, onClose, children }) => (
   <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/30 backdrop-blur-md animate-fade-in">
