@@ -21,9 +21,9 @@ const STEPS = [
 ];
 
 const DEPT_COLORS = [
-  "#3B82F6","#10B981","#F59E0B","#EF4444",
-  "#8B5CF6","#EC4899","#06B6D4","#84CC16",
-  "#F97316","#A78BFA","#34D399","#FB923C",
+  "#0071E3","#34C759","#FF9500","#FF3B30",
+  "#5E5CE6","#EC4899","#06B6D4","#84CC16",
+  "#F97316","#5E5CE6","#34D399","#FB923C",
 ];
 
 // Column aliases for register number and grade detection
@@ -158,10 +158,10 @@ function StepBar({ current, steps }) {
               <div
                 className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 transition-all duration-300"
                 style={{
-                  background: current > i ? "#10B981" : current === i ? "#3B82F6" : "#1E2E45",
+                  background: current > i ? "#34C759" : current === i ? "#0071E3" : "#E5E5EA",
                   color:      current >= i ? "white" : "#475569",
-                  border:     current >= i ? "none" : "1px solid #263548",
-                  boxShadow:  current === i ? "0 0 0 3px #3B82F625" : "none",
+                  border:     current >= i ? "none" : "1px solid #E5E5EA",
+                  boxShadow:  current === i ? "0 0 0 3px #0071E325" : "none",
                 }}
               >
                 {current > i ? <Icon d={icons.check} size={12} /> : i + 1}
@@ -176,7 +176,7 @@ function StepBar({ current, steps }) {
             {i < steps.length - 1 && (
               <div
                 className="w-6 sm:w-10 h-px mx-1 mb-4 transition-all duration-500"
-                style={{ background: current > i ? "#10B981" : "#1E2E45" }}
+                style={{ background: current > i ? "#34C759" : "#E5E5EA" }}
               />
             )}
           </div>
@@ -191,7 +191,7 @@ function ProgressScreen({ icon, color, title, subtitle }) {
   return (
     <div
       className="rounded-xl p-14 text-center"
-      style={{ background: "#162033", border: "1px solid #263548" }}
+      style={{ background: "#FFFFFF", border: "1px solid #E5E5EA" }}
     >
       <div className="relative w-20 h-20 mx-auto mb-6">
         <div
@@ -203,7 +203,7 @@ function ProgressScreen({ icon, color, title, subtitle }) {
         </div>
       </div>
       <h3 className="text-white font-semibold text-lg mb-2">{title}</h3>
-      <p className="text-slate-400 text-sm">{subtitle}</p>
+      <p className="text-[#86868B] text-sm">{subtitle}</p>
     </div>
   );
 }
@@ -213,14 +213,14 @@ function DeptUploadCard({ index, dept, color, onNameChange, onFileChange }) {
   const fileRef = useRef();
 
   const borderColor =
-    dept.status === "ready" ? "#10B981" :
-    dept.status === "error" ? "#EF4444" : "#263548";
+    dept.status === "ready" ? "#34C759" :
+    dept.status === "error" ? "#FF3B30" : "#E5E5EA";
 
   return (
     <div
       className="rounded-xl p-5 transition-all duration-300"
       style={{
-        background:  "#162033",
+        background:  "#FFFFFF",
         border:      `1px solid ${borderColor}`,
         boxShadow:   dept.status === "ready" ? `0 0 14px ${borderColor}18` : "none",
       }}
@@ -230,20 +230,20 @@ function DeptUploadCard({ index, dept, color, onNameChange, onFileChange }) {
         <div
           className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0"
           style={{
-            background: dept.status === "ready" ? "#10B981" : color + "33",
+            background: dept.status === "ready" ? "#34C759" : color + "33",
             color:      dept.status === "ready" ? "white"   : color,
           }}
         >
           {dept.status === "ready" ? <Icon d={icons.check} size={10} /> : index + 1}
         </div>
-        <span className="text-slate-300 text-sm font-semibold">Department {index + 1}</span>
+        <span className="text-[#424245] text-sm font-semibold">Department {index + 1}</span>
         {dept.status === "ready" && <Badge color="green">Ready</Badge>}
         {dept.status === "error" && <Badge color="red">Error</Badge>}
       </div>
 
       {/* Department name input with autocomplete suggestions */}
       <div className="flex flex-col gap-1.5 mb-3">
-        <label className="text-xs font-medium text-slate-400 uppercase tracking-wider">
+        <label className="text-xs font-medium text-[#86868B] uppercase tracking-wider">
           Department Name
         </label>
         <input
@@ -251,7 +251,7 @@ function DeptUploadCard({ index, dept, color, onNameChange, onFileChange }) {
           value={dept.name}
           onChange={e => onNameChange(e.target.value)}
           placeholder="e.g. CSE, ECE, MECH…"
-          style={{ background: "#0F1B2D", border: "1px solid #263548", color: "#E2E8F0" }}
+          style={{ background: "#FFFFFF", border: "1px solid #E5E5EA", color: "#E2E8F0" }}
           className="rounded-lg px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-blue-500/50 placeholder-slate-600"
         />
         <datalist id={`dept-suggestions-${index}`}>
@@ -263,8 +263,8 @@ function DeptUploadCard({ index, dept, color, onNameChange, onFileChange }) {
       <div
         className="rounded-xl p-5 text-center cursor-pointer transition-all duration-200 select-none"
         style={{
-          background: "#0F1B2D",
-          border:     `2px dashed ${dept.file ? "#10B981" : "#263548"}`,
+          background: "#FFFFFF",
+          border:     `2px dashed ${dept.file ? "#34C759" : "#E5E5EA"}`,
         }}
         onClick={() => fileRef.current?.click()}
         onDragOver={e => e.preventDefault()}
@@ -276,7 +276,7 @@ function DeptUploadCard({ index, dept, color, onNameChange, onFileChange }) {
       >
         {dept.file ? (
           <div className="flex flex-col items-center gap-1">
-            <Icon d={icons.check} size={20} color="#10B981" />
+            <Icon d={icons.check} size={20} color="#34C759" />
             <span className="text-emerald-400 text-sm font-medium truncate max-w-full px-2">
               {dept.file.name}
             </span>
@@ -287,7 +287,7 @@ function DeptUploadCard({ index, dept, color, onNameChange, onFileChange }) {
         ) : (
           <div className="flex flex-col items-center gap-1.5">
             <Icon d={icons.upload} size={22} color="#475569" />
-            <span className="text-slate-400 text-sm font-medium">Click or drag &amp; drop</span>
+            <span className="text-[#86868B] text-sm font-medium">Click or drag &amp; drop</span>
             <span className="text-slate-600 text-xs">.xlsx / .xls only</span>
           </div>
         )}
@@ -313,17 +313,17 @@ function CleaningSummaryCard({ deptName, stats, color }) {
 
   const items = [
     { label: "Original",    value: stats.original,      color: "#64748B" },
-    { label: "Cleaned",     value: stats.cleaned,       color: "#10B981" },
+    { label: "Cleaned",     value: stats.cleaned,       color: "#34C759" },
     { label: "Empty Rows",  value: stats.emptyRemoved,  color: "#475569" },
-    { label: "Arrear Rows", value: stats.arrearRemoved, color: "#F59E0B" },
-    { label: "Duplicates",  value: stats.dupRemoved,    color: "#8B5CF6" },
-    { label: "Invalid",     value: stats.invalidRemoved,color: "#EF4444" },
+    { label: "Arrear Rows", value: stats.arrearRemoved, color: "#FF9500" },
+    { label: "Duplicates",  value: stats.dupRemoved,    color: "#5E5CE6" },
+    { label: "Invalid",     value: stats.invalidRemoved,color: "#FF3B30" },
   ];
 
   return (
     <div
       className="rounded-xl p-5"
-      style={{ background: "#162033", border: "1px solid #263548" }}
+      style={{ background: "#FFFFFF", border: "1px solid #E5E5EA" }}
     >
       <div className="flex items-center gap-2 mb-4">
         <div className="w-2.5 h-5 rounded-full flex-shrink-0" style={{ background: color }} />
@@ -335,7 +335,7 @@ function CleaningSummaryCard({ deptName, stats, color }) {
 
       <div className="grid grid-cols-3 gap-2 mb-4">
         {items.map((item, i) => (
-          <div key={i} className="rounded-lg p-2.5 text-center" style={{ background: "#0F1B2D" }}>
+          <div key={i} className="rounded-lg p-2.5 text-center" style={{ background: "#FFFFFF" }}>
             <div className="text-xl font-bold tabular-nums" style={{ color: item.color }}>
               {item.value}
             </div>
@@ -350,7 +350,7 @@ function CleaningSummaryCard({ deptName, stats, color }) {
           <span>Data Quality</span>
           <span>{retained}%</span>
         </div>
-        <div className="w-full h-2 rounded-full" style={{ background: "#1E2E45" }}>
+        <div className="w-full h-2 rounded-full" style={{ background: "#E5E5EA" }}>
           <div
             className="h-full rounded-full transition-all duration-700"
             style={{ width: `${retained}%`, background: color }}
@@ -603,7 +603,7 @@ export default function MultiDeptResultPage({
       {/* Global error banner */}
       {error && (
         <div
-          style={{ background: "#EF444415", border: "1px solid #EF444430", color: "#FCA5A5" }}
+          style={{ background: "#FF3B3015", border: "1px solid #FF3B3030", color: "#FCA5A5" }}
           className="rounded-lg p-3 text-sm mb-4 flex items-center justify-between"
         >
           <span>{error}</span>
@@ -616,7 +616,7 @@ export default function MultiDeptResultPage({
         <div className="max-w-sm mx-auto">
           <div
             className="rounded-xl p-8 text-center"
-            style={{ background: "#162033", border: "1px solid #263548" }}
+            style={{ background: "#FFFFFF", border: "1px solid #E5E5EA" }}
           >
             <div
               className="w-16 h-16 mx-auto mb-4 rounded-2xl flex items-center justify-center"
@@ -628,14 +628,14 @@ export default function MultiDeptResultPage({
               <Icon d={icons.students} size={28} color="white" />
             </div>
             <h2 className="text-white text-xl font-bold mb-1">Multi-Department Upload</h2>
-            <p className="text-slate-400 text-sm mb-6">
+            <p className="text-[#86868B] text-sm mb-6">
               Enter the number of departments. You'll upload one result Excel file per department.
               The system will automatically validate, cleanse, and analyse the data.
             </p>
 
             <div className="flex flex-col gap-3 text-left">
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-medium text-slate-400 uppercase tracking-wider">
+                <label className="text-xs font-medium text-[#86868B] uppercase tracking-wider">
                   Number of Departments
                 </label>
                 <input
@@ -646,7 +646,7 @@ export default function MultiDeptResultPage({
                   onChange={e => { setDeptCountInput(e.target.value); setDeptCountError(""); }}
                   onKeyDown={e => e.key === "Enter" && handleCountNext()}
                   placeholder="e.g. 3"
-                  style={{ background: "#0F1B2D", border: "1px solid #263548", color: "#E2E8F0" }}
+                  style={{ background: "#FFFFFF", border: "1px solid #E5E5EA", color: "#E2E8F0" }}
                   className="rounded-lg px-4 py-3 text-center text-2xl font-bold outline-none
                              focus:ring-2 focus:ring-blue-500/50 placeholder-slate-600"
                 />
@@ -671,7 +671,7 @@ export default function MultiDeptResultPage({
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
             <div>
               <h2 className="text-white font-bold text-lg">Upload Department Excel Files</h2>
-              <p className="text-slate-400 text-sm mt-0.5">
+              <p className="text-[#86868B] text-sm mt-0.5">
                 {readyCount} of {depts.length} departments ready
               </p>
             </div>
@@ -695,8 +695,8 @@ export default function MultiDeptResultPage({
                 className="h-1.5 flex-1 rounded-full transition-all duration-300"
                 style={{
                   background:
-                    d.status === "ready" ? "#10B981" :
-                    d.status === "error" ? "#EF4444" : "#263548",
+                    d.status === "ready" ? "#34C759" :
+                    d.status === "error" ? "#FF3B30" : "#E5E5EA",
                 }}
               />
             ))}
@@ -718,10 +718,10 @@ export default function MultiDeptResultPage({
 
           {/* Required columns hint */}
           <div
-            className="mt-4 rounded-lg p-3 text-xs text-slate-400"
-            style={{ background: "#1A2A3E", border: "1px solid #263548" }}
+            className="mt-4 rounded-lg p-3 text-xs text-[#86868B]"
+            style={{ background: "#F5F5F7", border: "1px solid #E5E5EA" }}
           >
-            <span className="font-medium text-slate-300">Required Columns:</span>{" "}
+            <span className="font-medium text-[#424245]">Required Columns:</span>{" "}
             Register Number · S.No · Subject Code · GR (Grade) · GP (Grade Point) · RESULT · GPA · CGPA
           </div>
         </div>
@@ -731,7 +731,7 @@ export default function MultiDeptResultPage({
       {step === 2 && (
         <ProgressScreen
           icon={icons.check}
-          color="#3B82F6"
+          color="#0071E3"
           title="Validating Files…"
           subtitle="Checking Excel format, required columns, and duplicate entries"
         />
@@ -741,7 +741,7 @@ export default function MultiDeptResultPage({
       {step === 3 && (
         <ProgressScreen
           icon={icons.filter}
-          color="#10B981"
+          color="#34C759"
           title="Auto-Cleansing Data…"
           subtitle={
             progressMsg ||
@@ -756,7 +756,7 @@ export default function MultiDeptResultPage({
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
             <div>
               <h2 className="text-white font-bold text-lg">Cleansing Summary</h2>
-              <p className="text-slate-400 text-sm mt-0.5">
+              <p className="text-[#86868B] text-sm mt-0.5">
                 Review what was automatically cleaned from each department.
               </p>
             </div>
@@ -775,19 +775,19 @@ export default function MultiDeptResultPage({
               <div
                 className="rounded-xl p-5 mb-5"
                 style={{
-                  background: "linear-gradient(135deg,#1E2E45,#162033)",
-                  border: "1px solid #263548",
+                  background: "linear-gradient(135deg,#E5E5EA,#FFFFFF)",
+                  border: "1px solid #E5E5EA",
                 }}
               >
                 <h3 className="text-white font-semibold mb-3 text-sm">📊 Overall College Summary</h3>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
                   {[
-                    { label: "Departments",    value: cleaningResults.length, color: "#3B82F6" },
+                    { label: "Departments",    value: cleaningResults.length, color: "#0071E3" },
                     { label: "Original Rows",  value: totalOrig,              color: "#64748B" },
-                    { label: "After Cleaning", value: totalCleaned,           color: "#10B981" },
-                    { label: "Rows Removed",   value: totalRemoved,           color: "#F59E0B" },
+                    { label: "After Cleaning", value: totalCleaned,           color: "#34C759" },
+                    { label: "Rows Removed",   value: totalRemoved,           color: "#FF9500" },
                   ].map((item, i) => (
-                    <div key={i} className="rounded-lg p-3 text-center" style={{ background: "#0F1B2D" }}>
+                    <div key={i} className="rounded-lg p-3 text-center" style={{ background: "#FFFFFF" }}>
                       <div className="text-2xl font-bold tabular-nums" style={{ color: item.color }}>
                         {item.value}
                       </div>
@@ -796,16 +796,16 @@ export default function MultiDeptResultPage({
                   ))}
                 </div>
                 <div>
-                  <div className="flex justify-between text-xs text-slate-400 mb-1">
+                  <div className="flex justify-between text-xs text-[#86868B] mb-1">
                     <span>Overall Data Retention</span>
-                    <span className="font-semibold" style={{ color: pct >= 90 ? "#10B981" : "#F59E0B" }}>
+                    <span className="font-semibold" style={{ color: pct >= 90 ? "#34C759" : "#FF9500" }}>
                       {pct}%
                     </span>
                   </div>
-                  <div className="w-full h-2.5 rounded-full" style={{ background: "#1E2E45" }}>
+                  <div className="w-full h-2.5 rounded-full" style={{ background: "#E5E5EA" }}>
                     <div
                       className="h-full rounded-full transition-all duration-700"
-                      style={{ width: `${pct}%`, background: pct >= 90 ? "#10B981" : "#F59E0B" }}
+                      style={{ width: `${pct}%`, background: pct >= 90 ? "#34C759" : "#FF9500" }}
                     />
                   </div>
                 </div>
@@ -820,10 +820,10 @@ export default function MultiDeptResultPage({
                 <div
                   key={i}
                   className="rounded-xl p-5"
-                  style={{ background: "#162033", border: "1px solid #EF4444" }}
+                  style={{ background: "#FFFFFF", border: "1px solid #FF3B30" }}
                 >
                   <div className="flex items-center gap-2 mb-2">
-                    <Icon d={icons.warning} size={18} color="#EF4444" />
+                    <Icon d={icons.warning} size={18} color="#FF3B30" />
                     <h4 className="text-white font-semibold">{result.name}</h4>
                   </div>
                   <p className="text-red-400 text-sm">{result.error}</p>
@@ -845,7 +845,7 @@ export default function MultiDeptResultPage({
       {step === 5 && (
         <ProgressScreen
           icon={icons.chart}
-          color="#8B5CF6"
+          color="#5E5CE6"
           title="Merging Datasets…"
           subtitle={
             progressMsg ||
@@ -880,7 +880,7 @@ export default function MultiDeptResultPage({
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
               <div>
                 <h2 className="text-white text-xl font-bold">Multi-Department Result Analysis</h2>
-                <p className="text-slate-400 text-sm mt-1">
+                <p className="text-[#86868B] text-sm mt-1">
                   {successDepts.map(r => r.name).join(" · ")} ·{" "}
                   {successDepts.reduce((a, r) => a + (r.stats?.cleaned || 0), 0)} records analysed
                 </p>
@@ -909,23 +909,23 @@ export default function MultiDeptResultPage({
                 {[
                   {
                     label: "Total Students",  value: overall.totalStudents,
-                    sub: "All Departments",   accent: "#3B82F6", icon: "students",
+                    sub: "All Departments",   accent: "#0071E3", icon: "students",
                   },
                   {
                     label: "Pass Rate",
                     value: `${overall.passPercent.toFixed(1)}%`,
                     sub: `${overall.passed} passed`,
-                    accent: "#10B981", icon: "check",
+                    accent: "#34C759", icon: "check",
                   },
                   {
                     label: "Fail Rate",
                     value: `${(100 - overall.passPercent).toFixed(1)}%`,
                     sub: `${overall.failed} failed`,
-                    accent: "#EF4444", icon: "close",
+                    accent: "#FF3B30", icon: "close",
                   },
                   {
                     label: "Average GPA",  value: overall.avg,
-                    sub: "College Average", accent: "#8B5CF6", icon: "chart",
+                    sub: "College Average", accent: "#5E5CE6", icon: "chart",
                   },
                   {
                     label: "Present",       value: overall.appeared,
@@ -933,7 +933,7 @@ export default function MultiDeptResultPage({
                   },
                   {
                     label: "Absent",        value: overall.absent,
-                    sub: "Absent",          accent: "#F59E0B", icon: "warning",
+                    sub: "Absent",          accent: "#FF9500", icon: "warning",
                   },
                   {
                     label: "Top Performer",
@@ -941,7 +941,7 @@ export default function MultiDeptResultPage({
                     sub:   overall.topper?.match(/\(([^)]+)\)/)?.[1]
                            ? `CGPA: ${overall.topper.match(/\(([^)]+)\)/)[1]}`
                            : "",
-                    accent: "#F59E0B", icon: "students",
+                    accent: "#FF9500", icon: "students",
                   },
                   {
                     label: "Departments",   value: departments.length,
@@ -951,10 +951,10 @@ export default function MultiDeptResultPage({
                   <div
                     key={i}
                     className="rounded-xl p-4 flex flex-col gap-2"
-                    style={{ background: "#162033", border: "1px solid #263548" }}
+                    style={{ background: "#FFFFFF", border: "1px solid #E5E5EA" }}
                   >
                     <div className="flex items-center justify-between">
-                      <span className="text-slate-400 text-xs font-medium uppercase tracking-wider">
+                      <span className="text-[#86868B] text-xs font-medium uppercase tracking-wider">
                         {stat.label}
                       </span>
                       <div
@@ -978,7 +978,7 @@ export default function MultiDeptResultPage({
               {/* Department-wise pass % bars */}
               <div
                 className="rounded-xl p-5"
-                style={{ background: "#162033", border: "1px solid #263548" }}
+                style={{ background: "#FFFFFF", border: "1px solid #E5E5EA" }}
               >
                 <h3 className="text-white font-semibold mb-4 text-sm">
                   Department-wise Pass Percentage
@@ -987,8 +987,8 @@ export default function MultiDeptResultPage({
                   {departments.map((d, i) => (
                     <div key={i}>
                       <div className="flex justify-between items-center mb-1.5 text-xs">
-                        <span className="text-slate-300 font-semibold">{d.name}</span>
-                        <span className="text-slate-400">
+                        <span className="text-[#424245] font-semibold">{d.name}</span>
+                        <span className="text-[#86868B]">
                           {d.appeared} appeared · {d.allPass} all-pass ·{" "}
                           <span
                             className="font-bold"
@@ -998,7 +998,7 @@ export default function MultiDeptResultPage({
                           </span>
                         </span>
                       </div>
-                      <div className="w-full h-2.5 rounded-full" style={{ background: "#1E2E45" }}>
+                      <div className="w-full h-2.5 rounded-full" style={{ background: "#E5E5EA" }}>
                         <div
                           className="h-full rounded-full transition-all duration-700"
                           style={{
@@ -1019,7 +1019,7 @@ export default function MultiDeptResultPage({
               {topPerformers.length > 0 && (
                 <div
                   className="rounded-xl p-5"
-                  style={{ background: "#162033", border: "1px solid #263548" }}
+                  style={{ background: "#FFFFFF", border: "1px solid #E5E5EA" }}
                 >
                   <h3 className="text-white font-semibold mb-3 text-sm">🏆 Top Performers</h3>
                   <Table
@@ -1030,7 +1030,7 @@ export default function MultiDeptResultPage({
                         className="font-bold text-sm"
                         style={{
                           color:
-                            i === 0 ? "#F59E0B" :
+                            i === 0 ? "#FF9500" :
                             i === 1 ? "#94A3B8" :
                             i === 2 ? "#CD7C2F" : "#64748B",
                         }}
@@ -1051,7 +1051,7 @@ export default function MultiDeptResultPage({
               {failStudents.length > 0 && (
                 <div
                   className="rounded-xl p-5"
-                  style={{ background: "#162033", border: "1px solid #263548" }}
+                  style={{ background: "#FFFFFF", border: "1px solid #E5E5EA" }}
                 >
                   <h3 className="text-white font-semibold mb-3 text-sm">
                     ⚠️ Failure Analysis (3+ Arrears)
@@ -1072,7 +1072,7 @@ export default function MultiDeptResultPage({
               {/* Download cleaned files per department */}
               <div
                 className="rounded-xl p-5"
-                style={{ background: "#162033", border: "1px solid #263548" }}
+                style={{ background: "#FFFFFF", border: "1px solid #E5E5EA" }}
               >
                 <h3 className="text-white font-semibold mb-3 text-sm">
                   Download Cleaned Data
@@ -1100,7 +1100,7 @@ export default function MultiDeptResultPage({
             {floorReport.unmatched > 0 && (
               <div
                 className="mt-4 rounded-lg p-3 text-xs"
-                style={{ background: "#1A1A0D", border: "1px solid #3D3010", color: "#FCD34D" }}
+                style={{ background: "#FFFBEB", border: "1px solid #FDE68A", color: "#FCD34D" }}
               >
                 ⚠️ {floorReport.unmatched} student(s) in the Excel files were not found in the
                 Student Master. Import students via{" "}
@@ -1115,16 +1115,16 @@ export default function MultiDeptResultPage({
       {step === 7 && (
         <div
           className="rounded-xl p-12 text-center"
-          style={{ background: "#162033", border: "1px solid #263548" }}
+          style={{ background: "#FFFFFF", border: "1px solid #E5E5EA" }}
         >
           <div
             className="rounded-full p-5 inline-flex mb-5"
-            style={{ background: "#10B98115" }}
+            style={{ background: "#34C75915" }}
           >
-            <Icon d={icons.check} size={40} color="#10B981" />
+            <Icon d={icons.check} size={40} color="#34C759" />
           </div>
           <h3 className="text-white font-semibold text-xl mb-2">Report Saved Successfully!</h3>
-          <p className="text-slate-400 text-sm mb-1">
+          <p className="text-[#86868B] text-sm mb-1">
             Multi-department analysis saved to Report History.
           </p>
           <p className="text-slate-500 text-xs mb-6">

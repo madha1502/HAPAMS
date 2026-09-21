@@ -35,3 +35,22 @@ Thumbs.db
 # ─── Misc ───────────────────────────────────────────────────────────
 *.tmp
 *.swp
+*.db
+*.db-journal
+
+# Temporary scratch & builder scripts
+apple_builder.py
+build_all.*
+builder.py
+check_*.js
+explain_logic.js
+find_def.js
+fix_*.js
+fixer.js
+inspect_misc.js
+read_*.js
+transform_pages.py
+update_misc.js
+test.js
+test.py
+

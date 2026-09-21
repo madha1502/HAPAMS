@@ -1,253 +1,153 @@
 import { useState, useEffect } from "react";
 import { api } from "../api/client.js";
-import { Icon, icons, Badge, Btn, PageHeader, Modal, Input, Select, ErrorBanner, Spinner } from "../components/ui.jsx";
+import { Badge, Btn, PageHeader, Modal, Input, Select, ErrorBanner, Spinner, Icon, icons } from "../components/ui.jsx";
 
 export default function FloorsPage() {
   const [floors,   setFloors]   = useState([]);
   const [loading,  setLoading]  = useState(true);
-  const [saving,   setSaving]   = useState(false);
   const [error,    setError]    = useState("");
-  const [modal,    setModal]    = useState(null); // "add" | "edit" | "delete"
+  const [modal,    setModal]    = useState(null);
+  const [form,     setForm]     = useState({ name: "", capacity: 40, hostel: "Men's Hostel", description: "", status: "Active" });
   const [editId,   setEditId]   = useState(null);
   const [deleteId, setDeleteId] = useState(null);
-  const [form,     setForm]     = useState({ name: "", capacity: "", hostel: "Men's Hostel", description: "", status: "Active" });
+  const [saving,   setSaving]   = useState(false);
 
-  // ── Fetch floors from backend ──────────────────────────────────────────────
-  async function load() {
+  async function loadFloors() {
     try {
       setLoading(true);
       const data = await api.getFloors();
       setFloors(data);
-    } catch (e) {
-      setError(e.message);
-    } finally {
-      setLoading(false);
-    }
+    } catch (e) { setError(e.message); }
+    finally     { setLoading(false); }
   }
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => { loadFloors(); }, []);
 
-  // ── Open Add modal ─────────────────────────────────────────────────────────
   function openAdd() {
-    const nextNum = floors.length + 1;
-    setForm({ name: `Floor ${nextNum}`, capacity: "", hostel: "Men's Hostel", description: "", status: "Active" });
-    setModal("add");
     setError("");
+    const nums = floors.map(f => parseInt(f.name.replace(/\D/g, ""), 10)).filter(n => !isNaN(n));
+    const nextNum = nums.length ? Math.max(...nums) + 1 : floors.length + 1;
+    setForm({ name: `Floor ${nextNum}`, capacity: 40, hostel: "Men's Hostel", description: "", status: "Active" });
+    setEditId(null);
+    setModal("add");
   }
 
-  // ── Open Edit modal ────────────────────────────────────────────────────────
   function openEdit(f) {
-    setForm({
-      name:        f.name,
-      capacity:    String(f.capacity),
-      hostel:      f.hostel,
-      description: f.description || "",
-      status:      f.status || "Active",
-    });
+    setError("");
+    setForm({ name: f.name, capacity: f.capacity, hostel: f.hostel || "Men's Hostel", description: f.description || "", status: f.status || "Active" });
     setEditId(f.id);
     setModal("edit");
-    setError("");
   }
 
-  // ── Save (Add or Edit) ─────────────────────────────────────────────────────
   async function handleSave() {
-    if (!form.name.trim() || !form.capacity) return;
-    setSaving(true);
-    setError("");
+    if (!form.name || !form.capacity) return setError("Name and Capacity are required");
     try {
+      setSaving(true);
       if (modal === "add") {
-        const created = await api.addFloor(form);
-        setFloors(prev => [...prev, created]);   // ← state updated from server response
+        await api.addFloor(form);
       } else {
-        const updated = await api.updateFloor(editId, form);
-        setFloors(prev => prev.map(f => f.id === editId ? updated : f));
+        await api.updateFloor(editId, form);
       }
       setModal(null);
-    } catch (e) {
-      setError(e.message);
-    } finally {
-      setSaving(false);
-    }
+      loadFloors();
+    } catch (e) { setError(e.message); }
+    finally     { setSaving(false); }
   }
 
-  // ── Delete ─────────────────────────────────────────────────────────────────
   async function handleDelete() {
-    setSaving(true);
     try {
+      setSaving(true);
       await api.deleteFloor(deleteId);
-      setFloors(prev => prev.filter(f => f.id !== deleteId));
-      setModal(null);
       setDeleteId(null);
-    } catch (e) {
-      setError(e.message);
-    } finally {
-      setSaving(false);
-    }
+      loadFloors();
+    } catch (e) { setError(e.message); }
+    finally     { setSaving(false); }
   }
-
-  const totalCapacity = floors.reduce((s, f) => s + (f.capacity || 0), 0);
-  const totalStudents = floors.reduce((s, f) => s + (f.students || 0), 0);
 
   if (loading) return <Spinner />;
 
   return (
-    <div>
-      <PageHeader
-        title="Floor Management"
-        sub={`${floors.length} floors · ${totalCapacity} total capacity`}
-        actions={<Btn icon="plus" onClick={openAdd}>Add New Floor</Btn>}
-      />
+    <div className="flex flex-col gap-6 animate-fade-in pb-12">
+      <PageHeader title="Hostel Floors & Blocks" subtitle="Manage capacity, warden assignments, and floor layouts">
+        <Btn icon="plus" onClick={openAdd}>Add New Floor</Btn>
+      </PageHeader>
 
       <ErrorBanner msg={error} onDismiss={() => setError("")} />
 
-      {/* Summary strip */}
-      <div className="grid grid-cols-3 gap-3 mb-6">
-        {[
-          { label: "Total Floors",    value: floors.length,  color: "#3B82F6" },
-          { label: "Total Capacity",  value: totalCapacity,  color: "#10B981" },
-          { label: "Occupied",        value: totalStudents,  color: "#F59E0B" },
-        ].map((s, i) => (
-          <div key={i} style={{ background: "#162033", border: "1px solid #263548" }} className="rounded-xl p-4 text-center">
-            <div className="text-2xl font-bold tabular-nums" style={{ color: s.color }}>{s.value}</div>
-            <div className="text-xs text-slate-500 mt-0.5">{s.label}</div>
-          </div>
-        ))}
-      </div>
-
-      {/* Floor cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {floors.map(f => {
-          const pct      = f.capacity > 0 ? Math.round(((f.students || 0) / f.capacity) * 100) : 0;
-          const barColor = pct >= 90 ? "#EF4444" : pct >= 60 ? "#F59E0B" : "#3B82F6";
+          const occ = f.occupied || f._count?.students || 0;
+          const cap = f.capacity || 40;
+          const pct = Math.min(100, Math.round((occ / cap) * 100));
+
           return (
-            <div key={f.id}
-              style={{
-                background:  "#162033",
-                border:      `1px solid ${f.status === "Inactive" ? "#374151" : "#263548"}`,
-                opacity:     f.status === "Inactive" ? 0.65 : 1,
-              }}
-              className="rounded-xl p-5 transition-all">
-              <div className="flex items-start justify-between mb-3">
-                <div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-white font-semibold">{f.name}</span>
-                    {f.status === "Inactive" && <Badge color="gray">Inactive</Badge>}
+            <div key={f.id} className="bg-white rounded-3xl p-6 shadow-sm border border-[#E5E5EA] flex flex-col justify-between hover:shadow-md transition-all duration-300">
+              <div>
+                <div className="flex justify-between items-start mb-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-2xl bg-[#0071E3]/10 text-[#0071E3] flex items-center justify-center font-bold">
+                      <Icon d={icons.building} size={20} />
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-[#1D1D1F] text-base">{f.name}</h3>
+                      <p className="text-xs text-[#86868B]">{f.hostel || "Main Hostel"}</p>
+                    </div>
                   </div>
-                  {f.description && <p className="text-xs text-slate-500 mt-0.5">{f.description}</p>}
-                  <p className="text-xs text-slate-600 mt-0.5">{f.hostel}</p>
+                  <Badge color={f.status === "Inactive" ? "gray" : pct >= 90 ? "amber" : "green"}>
+                    {f.status || "Active"}
+                  </Badge>
                 </div>
-                <div className="flex gap-1 flex-shrink-0">
-                  <Btn variant="ghost" size="sm" icon="edit"  onClick={() => openEdit(f)} />
-                  <Btn variant="ghost" size="sm" icon="trash" onClick={() => { setDeleteId(f.id); setModal("delete"); }} />
+
+                <p className="text-xs text-[#424245] mb-5 min-h-[36px]">{f.description || "Hostel residential level."}</p>
+
+                {/* Occupancy bar */}
+                <div className="space-y-2 mb-6">
+                  <div className="flex justify-between text-xs font-semibold">
+                    <span className="text-[#86868B]">Occupancy</span>
+                    <span className="text-[#1D1D1F] tabular-nums">{occ} / {cap} Beds ({pct}%)</span>
+                  </div>
+                  <div className="w-full bg-[#F5F5F7] h-2.5 rounded-full overflow-hidden border border-[#E5E5EA]">
+                    <div
+                      className={`h-full rounded-full transition-all duration-500 ${
+                        pct >= 90 ? "bg-[#FF9500]" : "bg-[#0071E3]"
+                      }`}
+                      style={{ width: `${pct}%` }}
+                    />
+                  </div>
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-2 mb-3">
-                <div style={{ background: "#0F1B2D" }} className="rounded-lg p-2.5 text-center">
-                  <div className="text-xl font-bold text-blue-400 tabular-nums">{f.capacity}</div>
-                  <div className="text-xs text-slate-500">Capacity</div>
-                </div>
-                <div style={{ background: "#0F1B2D" }} className="rounded-lg p-2.5 text-center">
-                  <div className="text-xl font-bold text-emerald-400 tabular-nums">{f.students ?? 0}</div>
-                  <div className="text-xs text-slate-500">Students</div>
-                </div>
-              </div>
-              <div className="h-2 rounded-full bg-slate-700/50 mb-1">
-                <div className="h-full rounded-full transition-all" style={{ width: `${Math.min(pct, 100)}%`, background: barColor }} />
-              </div>
-              <div className="flex justify-between text-xs text-slate-500">
-                <span>{f.capacity - (f.students ?? 0)} seats vacant</span>
-                <span>{pct}% occupied</span>
+
+              <div className="flex gap-2 pt-4 border-t border-[#E5E5EA]">
+                <Btn variant="ghost" size="sm" icon="edit" onClick={() => openEdit(f)}>Edit</Btn>
+                <Btn variant="ghost" size="sm" icon="trash" onClick={() => setDeleteId(f.id)}>Delete</Btn>
               </div>
             </div>
           );
         })}
-
-        {/* Add floor shortcut card */}
-        <div onClick={openAdd}
-          style={{ background: "#0F1B2D", border: "2px dashed #263548" }}
-          className="rounded-xl p-5 flex flex-col items-center justify-center gap-3 cursor-pointer hover:border-blue-500/50 hover:bg-blue-500/5 transition-all min-h-[180px]">
-          <div style={{ background: "#1E2E45" }} className="w-10 h-10 rounded-full flex items-center justify-center">
-            <Icon d={icons.plus} size={20} color="#3B82F6" />
-          </div>
-          <div className="text-center">
-            <p className="text-slate-300 text-sm font-medium">Add New Floor</p>
-            <p className="text-slate-600 text-xs mt-0.5">New construction, extension, etc.</p>
-          </div>
-        </div>
       </div>
 
-      {/* ── Add / Edit Modal ──────────────────────────────────────────────────── */}
-      {(modal === "add" || modal === "edit") && (
-        <Modal title={modal === "add" ? "Add New Floor" : `Edit ${form.name}`} onClose={() => { setModal(null); setError(""); }}>
-          <div className="flex flex-col gap-3">
-            <ErrorBanner msg={error} onDismiss={() => setError("")} />
-            <Input
-              label="Floor Name *"
-              placeholder="e.g. Floor 5, Ground Floor, Terrace Block"
-              value={form.name}
-              onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
-            />
-            <Input
-              label="Capacity (max students) *"
-              type="number"
-              min="1"
-              placeholder="e.g. 40"
-              value={form.capacity}
-              onChange={e => setForm(f => ({ ...f, capacity: e.target.value }))}
-            />
-            <Input
-              label="Hostel Block"
-              placeholder="e.g. Boys Hostel 1, Girls Hostel 2"
-              value={form.hostel}
-              onChange={e => setForm(f => ({ ...f, hostel: e.target.value }))}
-            />
-            <Input
-              label="Description (optional)"
-              placeholder="e.g. New construction block, Under renovation…"
-              value={form.description}
-              onChange={e => setForm(f => ({ ...f, description: e.target.value }))}
-            />
-            <Select
-              label="Status"
-              value={form.status}
-              onChange={e => setForm(f => ({ ...f, status: e.target.value }))}
-              options={[
-                { value: "Active",   label: "Active — accepting students"              },
-                { value: "Inactive", label: "Inactive — under construction / maintenance" },
-              ]}
-            />
-            {(!form.name.trim() || !form.capacity) && (
-              <p className="text-xs text-amber-400">* Floor Name and Capacity are required</p>
-            )}
+      {modal && (
+        <Modal title={modal === "add" ? "Add Floor" : "Edit Floor"} onClose={() => setModal(null)}>
+          <div className="space-y-4">
+            <Input label="Floor Name" value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} />
+            <Input label="Capacity (Beds)" type="number" value={form.capacity} onChange={e => setForm({ ...form, capacity: parseInt(e.target.value, 10) })} />
+            <Select label="Hostel Block" value={form.hostel} onChange={e => setForm({ ...form, hostel: e.target.value })}
+              options={[{ value: "Men's Hostel", label: "Men's Hostel" }, { value: "Ladies Hostel", label: "Ladies Hostel" }]} />
+            <Input label="Description" value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} />
           </div>
-          <div className="flex justify-end gap-2 mt-5">
-            <Btn variant="outline" onClick={() => { setModal(null); setError(""); }}>Cancel</Btn>
-            <Btn onClick={handleSave} disabled={!form.name.trim() || !form.capacity || saving}>
-              {saving ? "Saving…" : modal === "add" ? "Add Floor" : "Save Changes"}
-            </Btn>
+          <div className="flex justify-end gap-3 mt-6 pt-4 border-t border-[#E5E5EA]">
+            <Btn variant="outline" onClick={() => setModal(null)}>Cancel</Btn>
+            <Btn onClick={handleSave} disabled={saving}>{saving ? "Saving..." : "Save Floor"}</Btn>
           </div>
         </Modal>
       )}
 
-      {/* ── Delete Confirmation ───────────────────────────────────────────────── */}
-      {modal === "delete" && (
-        <Modal title="Remove Floor" onClose={() => { setModal(null); setDeleteId(null); }}>
-          <div className="text-center py-2">
-            <div style={{ background: "#EF444415" }} className="rounded-full p-4 inline-flex mb-4">
-              <Icon d={icons.trash} size={28} color="#EF4444" />
-            </div>
-            <p className="text-slate-300 text-sm mb-2">
-              Remove <span className="text-white font-semibold">{floors.find(f => f.id === deleteId)?.name}</span>?
-            </p>
-            <p className="text-slate-500 text-xs mb-6">
-              Students assigned to this floor will not be deleted, but their floor assignment will need to be updated.
-            </p>
-            <div className="flex justify-center gap-3">
-              <Btn variant="outline" onClick={() => { setModal(null); setDeleteId(null); }}>Cancel</Btn>
-              <Btn variant="danger" icon="trash" onClick={handleDelete} disabled={saving}>
-                {saving ? "Removing…" : "Remove Floor"}
-              </Btn>
-            </div>
+      {deleteId && (
+        <Modal title="Delete Floor" onClose={() => setDeleteId(null)}>
+          <p className="text-sm text-[#1D1D1F] mb-6">Are you sure you want to delete this floor? All room allocations must be cleared first.</p>
+          <div className="flex justify-end gap-3">
+            <Btn variant="outline" onClick={() => setDeleteId(null)}>Cancel</Btn>
+            <Btn variant="danger" onClick={handleDelete} disabled={saving}>Delete</Btn>
           </div>
         </Modal>
       )}

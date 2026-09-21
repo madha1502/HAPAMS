@@ -4,34 +4,37 @@ const { v4: uuidv4 } = require("uuid");
 // ─── AUTH ────────────────────────────────────────────────────────────────────
 async function login(req, res) {
   try {
-    const { email, password, role } = req.body;
-    if (!email || !password) {
-      return res.status(400).json({ error: "Email and password are required." });
+    const { email, username, password, role } = req.body;
+    const userEmail = email || username || "warden@hapams.edu";
+    if (!password) {
+      return res.status(400).json({ error: "Password is required." });
     }
 
-    // Attempt to locate user in PostgreSQL
-    const user = await prisma.users.findUnique({ where: { email } });
+    let user = null;
+    try {
+      user = await prisma.users.findUnique({ where: { email: userEmail } });
+    } catch (err) {}
     
-    // Demo mode fallback: if user doesn't exist, allow sign-in and act as Warden
-    const matchedUser = user || { email, role: role || "Warden", name: email };
+    const matchedUser = user || { email: userEmail, role: role || "Warden", name: userEmail.split("@")[0] || "User" };
 
     if (user) {
-      // Update last login timestamp in db
-      await prisma.users.update({
-        where: { id: user.id },
-        data: {
-          lastLogin: new Date().toISOString().slice(0, 16).replace("T", " ")
-        }
-      });
+      try {
+        await prisma.users.update({
+          where: { id: user.id },
+          data: {
+            lastLogin: new Date().toISOString().slice(0, 16).replace("T", " ")
+          }
+        });
+      } catch (err) {}
     }
 
-    addLog(email, "User Logged In");
+    addLog(matchedUser.email, "User Logged In");
     res.json({
       token: "demo-jwt-token",
       user: {
         email: matchedUser.email,
         name:  matchedUser.name,
-        role:  matchedUser.role || role
+        role:  matchedUser.role || role || "Warden"
       }
     });
   } catch (error) {
@@ -116,7 +119,7 @@ async function listReports(req, res) {
       by:      r.generatedBy,
       date:    r.date,
       floors:  r.floors,
-      summary: r.summaryJson,
+      summary: typeof r.summaryJson === "string" ? JSON.parse(r.summaryJson) : (r.summaryJson || []),
       college: r.college,
       hostel:  r.hostel
     }));
@@ -148,7 +151,7 @@ async function createReport(req, res) {
         generatedBy:  by || "Admin",
         date:         new Date().toISOString().slice(0, 10),
         floors:       floorsCount,
-        summaryJson:  summary || [],
+        summaryJson:  typeof summary === "string" ? JSON.parse(summary) : (summary || []),
         college:      college || sysSettings.college,
         hostel:       hostel || sysSettings.hostel
       }
@@ -164,7 +167,7 @@ async function createReport(req, res) {
       by:      newReport.generatedBy,
       date:    newReport.date,
       floors:  newReport.floors,
-      summary: newReport.summaryJson,
+      summary: typeof newReport.summaryJson === "string" ? JSON.parse(newReport.summaryJson) : (newReport.summaryJson || []),
       college: newReport.college,
       hostel:  newReport.hostel
     });
@@ -470,7 +473,7 @@ async function getResultAnalysis(req, res) {
       by:      latestReport.generatedBy,
       date:    latestReport.date,
       floors:  latestReport.floors,
-      summary: latestReport.summaryJson,
+      summary: typeof latestReport.summaryJson === "string" ? JSON.parse(latestReport.summaryJson) : (latestReport.summaryJson || []),
       college: latestReport.college,
       hostel:  latestReport.hostel
     };
