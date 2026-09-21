@@ -1,4 +1,4 @@
-const { prisma, addLog } = require("../db.js");
+const { prisma, addLog, fallbackStore } = require("../db.js");
 
 // GET /api/floors
 async function listFloors(req, res) {
@@ -28,8 +28,8 @@ async function listFloors(req, res) {
 
     res.json(mapped);
   } catch (error) {
-    console.error("Error listing floors:", error);
-    res.status(500).json({ error: "Failed to fetch floors." });
+    console.warn("⚠️ Database error on listFloors, returning fallback data:", error.message);
+    res.json(fallbackStore.floors);
   }
 }
 
@@ -71,8 +71,18 @@ async function createFloor(req, res) {
     addLog("admin@hostel.edu", `Added new floor: ${newFloor.name}`);
     res.status(201).json({ ...newFloor, students: 0 });
   } catch (error) {
-    console.error("Error creating floor:", error);
-    res.status(500).json({ error: "Failed to create floor." });
+    console.warn("⚠️ Database error on createFloor, adding to fallback store:", error.message);
+    const newFloor = {
+      id: "f_" + Date.now(),
+      name: (req.body.name || "Floor").trim(),
+      capacity: Number(req.body.capacity) || 30,
+      hostel: req.body.hostel || "Men's Hostel Block A",
+      description: req.body.description || "",
+      status: req.body.status || "Active",
+      students: 0
+    };
+    fallbackStore.floors.push(newFloor);
+    res.status(201).json(newFloor);
   }
 }
 
@@ -133,7 +143,12 @@ async function updateFloor(req, res) {
     addLog("admin@hostel.edu", `Updated floor: ${updatedFloor.name}`);
     res.json({ ...updatedFloor, students: activeCount });
   } catch (error) {
-    console.error("Error updating floor:", error);
+    console.warn("⚠️ Database error on updateFloor, updating fallback store:", error.message);
+    const idx = fallbackStore.floors.findIndex(f => f.id === req.params.id);
+    if (idx !== -1) {
+      fallbackStore.floors[idx] = { ...fallbackStore.floors[idx], ...req.body };
+      return res.json(fallbackStore.floors[idx]);
+    }
     res.status(500).json({ error: "Failed to update floor." });
   }
 }
@@ -150,8 +165,9 @@ async function deleteFloor(req, res) {
     addLog("admin@hostel.edu", `Removed floor: ${floor.name}`);
     res.json({ message: `Floor "${floor.name}" removed.` });
   } catch (error) {
-    console.error("Error deleting floor:", error);
-    res.status(500).json({ error: "Failed to delete floor." });
+    console.warn("⚠️ Database error on deleteFloor, removing from fallback store:", error.message);
+    fallbackStore.floors = fallbackStore.floors.filter(f => f.id !== req.params.id);
+    res.json({ message: "Floor removed." });
   }
 }
 

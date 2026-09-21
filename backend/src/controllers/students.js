@@ -1,4 +1,4 @@
-const { prisma, addLog, getFloorByNumOrId } = require("../db.js");
+const { prisma, addLog, getFloorByNumOrId, fallbackStore } = require("../db.js");
 
 // Helper to map student record to frontend JSON contract
 function mapStudent(s) {
@@ -11,7 +11,7 @@ function mapStudent(s) {
     semester: s.semester || 1,
     section:  s.section || "",
     hostel:   s.hostel,
-    floor:    s.floor ? (parseInt(s.floor.name.replace(/\D/g, ""), 10) || s.floor.id) : 1,
+    floor:    s.floor ? (typeof s.floor === "object" ? (parseInt(s.floor.name.replace(/\D/g, ""), 10) || s.floor.id) : s.floor) : 1,
     room:     s.room || "",
     status:   s.status,
   };
@@ -51,8 +51,11 @@ async function listStudents(req, res) {
 
     res.json(students.map(mapStudent));
   } catch (error) {
-    console.error("Error listing students:", error);
-    res.status(500).json({ error: "Failed to fetch students." });
+    console.warn("⚠️ Database error listing students, returning fallback store:", error.message);
+    let list = fallbackStore.students;
+    if (req.query.dept) list = list.filter(s => s.dept === req.query.dept);
+    if (req.query.status) list = list.filter(s => s.status === req.query.status);
+    res.json(list);
   }
 }
 

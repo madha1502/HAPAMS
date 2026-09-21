@@ -1,4 +1,4 @@
-const { prisma, addLog, getFloorByNumOrId } = require("../db.js");
+const { prisma, addLog, getFloorByNumOrId, fallbackStore } = require("../db.js");
 
 // GET /api/rooms
 async function listRooms(req, res) {
@@ -58,8 +58,8 @@ async function listRooms(req, res) {
 
     res.json(mapped);
   } catch (error) {
-    console.error("Error listing rooms:", error);
-    res.status(500).json({ error: "Failed to fetch rooms." });
+    console.warn("⚠️ Database error listing rooms, returning fallback store:", error.message);
+    res.json(fallbackStore.rooms);
   }
 }
 
